@@ -28,7 +28,7 @@ decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integ
 
 # Train and test splits
 data = torch.tensor(encode(text), dtype=torch.long)
-n = int(0.9*len(data)) # first 90% will be train, rest val
+n = int(0.9 * len(data)) # first 90% will be train, rest val
 train_data = data[:n]
 val_data = data[n:]
 
@@ -63,6 +63,7 @@ class BigramLanguageModel(nn.Module):
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
+    # a b c d m x m
 
     def forward(self, idx, targets=None):
         # idx and targets are both (B,T) tensor of integers
@@ -72,7 +73,7 @@ class BigramLanguageModel(nn.Module):
             loss = None
         else:
             B, T, C = logits.shape
-            logits = logits.view(B*T, C)
+            logits = logits.view(B*T, C) # C is vocab dim! T is the number of tokens in the context for example the context is "hello" then T=5
             targets = targets.view(B*T)
             loss = F.cross_entropy(logits, targets)
 
@@ -118,3 +119,19 @@ for iter in range(max_iters):
 # generate from the model
 context = torch.zeros((1, 1), dtype=torch.long, device=device)
 print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
+
+
+
+
+
+# # MT: French: Je suis stefan ----> English: I am stefan
+# # Encoder - Decoder  
+# h1 h2 h3 h4 h5 h6  E \  D RNN 32 h6 
+
+# |  |  |  |  |  |   A      |  |  |  |  |  |  
+
+# x1 x2 x3 x3 x4 x4         y1 y2 y3 y4 y5 y6
+
+# E output = h6 (32)
+
+# D input = h6 (32)
