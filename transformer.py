@@ -1,6 +1,6 @@
 """ 
 
-This script was done in order to learn and grasp the concept of transformers. By most part
+This script was done in order to learn and better grasp the concept of transformers. Mostly,
 it is motivated by Andrej Karpathy's video: https://www.youtube.com/watch?v=kCc8FmEb1nY.
 I might extend this a bit in the future and implement the encoder as well. Another possible direction I might pursue is
 upgrading the architecture to work on a word-level basis, as currently it works on character-level. 
@@ -99,10 +99,10 @@ class Head(nn.Module):
     def forward(self, x):
         B, T, C = x.shape
 
-        q = self.queries(x) # B T 16
-        k = self.keys(x) # B T 16 we want -> B 16 T 
-        mask = (q @ k.transpose(-2, -1)) / math.sqrt(self.embedding_dim) # 1. dot product K * V
-        tril = torch.tril(torch.ones(T, T))
+        q = self.queries(x).to(device) # B T 16
+        k = self.keys(x).to(device) # B T 16 we want -> B 16 T
+        mask = (q @ k.transpose(-2, -1)) / math.sqrt(self.embedding_dim)
+        tril = torch.tril(torch.ones(T, T).to(device))
         mask = mask.masked_fill(tril == 0, float('-inf'))
         mask = F.softmax(mask, dim=-1)
         mask = self.dropout(mask)
@@ -241,13 +241,10 @@ def main():
     model = Decoder()
     model = model.to(device)
     print(f"{sum(p.numel() for p in model.parameters())/1e6:.2f} M parameters")
-
     # optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-
     # train
     train_model(model, optimizer, max_iters, eval_interval)
-
     # generate
     generate_text(model)
 

@@ -121,9 +121,6 @@ context = torch.zeros((1, 1), dtype=torch.long, device=device)
 print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
 
 
-
-
-
 # # MT: French: Je suis stefan ----> English: I am stefan
 # # Encoder - Decoder  
 # h1 h2 h3 h4 h5 h6  E \  D RNN 32 h6 
